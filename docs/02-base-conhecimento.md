@@ -20,7 +20,7 @@ Descreva se usou os arquivos da pasta `data`, por exemplo:
 
 > Você modificou ou expandiu os dados mockados? Descreva aqui.
 
-[Sua descrição aqui]
+Os dados foram utilizados como fornecidos, com duas observações importantes:
 
 ---
 
@@ -29,12 +29,23 @@ Descreva se usou os arquivos da pasta `data`, por exemplo:
 ### Como os dados são carregados?
 > Descreva como seu agente acessa a base de conhecimento.
 
-[ex: Os JSON/CSV são carregados no início da sessão e incluídos no contexto do prompt]
+Os arquivos são carregados uma única vez no início da sessão via Python, convertidos para texto estruturado e injetados no system prompt da Julia. Não há consulta dinâmica a banco de dados tudo entra como contexto estático na chamada à API.
+
+```
+import pandas as pd, json
+
+def carregar_base_conhecimento():
+    transacoes = pd.read_csv("data/transacoes.csv")
+    historico  = pd.read_csv("data/historico_atendimento.csv")
+    produtos   = json.load(open("data/produtos_financeiros.json"))
+    perfil     = json.load(open("data/perfil_investidor.json"))
+    return transacoes, historico, produtos, perfil
+```
 
 ### Como os dados são usados no prompt?
 > Os dados vão no system prompt? São consultados dinamicamente?
 
-[Sua descrição aqui]
+Os dados são formatados como texto e inseridos no system prompt da Julia, na seção de contexto do cliente. O LLM recebe tudo junto com as instruções de persona e regras de segurança sem RAG, sem chamadas externas, sem banco de dados. Simples, auditável e suficiente para o escopo do desafio.
 
 ---
 
